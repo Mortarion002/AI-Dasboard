@@ -26,12 +26,9 @@ export function TopicsChart({ data }: TopicsChartProps) {
               <span className="font-semibold text-text-primary">{topic.percentage}%</span>
             </div>
             <div className="w-full h-[5px] bg-surface-dim rounded-full overflow-hidden">
-              <div 
-                className="h-full rounded-full" 
-                style={{ 
-                  width: `${topic.percentage}%`, 
-                  backgroundColor: topic.color 
-                }} 
+              <div
+                className="h-full rounded-full bg-primary"
+                style={{ width: `${topic.percentage}%`, opacity: 1 - i * 0.15 }}
               />
             </div>
           </div>

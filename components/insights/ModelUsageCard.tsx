@@ -18,15 +18,15 @@ export function ModelUsageCard({ data }: ModelUsageProps) {
       </div>
       
       <div className="flex flex-col sm:flex-row gap-6 mb-6">
-        <div className="flex-1 flex flex-col items-center justify-center p-4 bg-primary/5 rounded-xl border border-primary/10 relative overflow-hidden">
-          <div className="text-[32px] font-semibold text-primary mb-1">
+        <div className="flex-1 flex flex-col items-center justify-center p-4 bg-surface-dim rounded-xl border border-border relative overflow-hidden">
+          <div className="text-[32px] font-semibold text-text-primary mb-1">
             {data.total}
           </div>
           <div className="text-[11px] text-text-muted uppercase tracking-wider font-semibold">
             Reqs
           </div>
           <div className="absolute top-0 left-0 right-0 h-1 bg-primary"></div>
-          <div className="absolute bottom-0 left-0 right-0 h-1 bg-primary/20"></div>
+          <div className="absolute bottom-0 left-0 right-0 h-1 bg-border"></div>
         </div>
         
         <div className="flex-1 flex flex-col justify-center">
@@ -36,16 +36,16 @@ export function ModelUsageCard({ data }: ModelUsageProps) {
                 <Area
                   type="monotone"
                   dataKey="requests"
-                  stroke="#3525CD"
-                  fill="#3525CD"
-                  fillOpacity={0.15}
+                  stroke="var(--text-primary)"
+                  fill="var(--text-primary)"
+                  fillOpacity={0.08}
                   strokeWidth={2}
                   isAnimationActive={false}
                 />
               </AreaChart>
             </ResponsiveContainer>
           </div>
-          <div className="inline-flex self-start px-2 py-1 bg-primary-light text-primary text-[11px] font-semibold rounded-full">
+          <div className="inline-flex self-start px-2 py-1 bg-surface-dim text-text-primary text-[11px] font-semibold rounded-full border border-border">
             +8.4% vs prior week
           </div>
         </div>

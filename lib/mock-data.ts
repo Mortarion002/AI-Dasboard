@@ -96,10 +96,10 @@ export const modelUsage: ModelUsageData = {
 };
 
 export const topTopics = [
-  { name: "Data Retrieval", percentage: 45, color: "#3525CD" },
-  { name: "Analysis Generation", percentage: 30, color: "#6366F1" },
-  { name: "System Config", percentage: 15, color: "#A5B4FC" },
-  { name: "Code Generation", percentage: 10, color: "#E0E7FF" }
+  { name: "Data Retrieval", percentage: 45, color: "var(--primary)" },
+  { name: "Analysis Generation", percentage: 30, color: "var(--primary)" },
+  { name: "System Config", percentage: 15, color: "var(--primary)" },
+  { name: "Code Generation", percentage: 10, color: "var(--primary)" }
 ];
 
 export const apiKeys = [

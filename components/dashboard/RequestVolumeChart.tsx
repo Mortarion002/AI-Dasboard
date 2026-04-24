@@ -18,13 +18,13 @@ export function RequestVolumeChart({ data }: ChartProps) {
           <MoreVertical size={16} />
         </button>
       </div>
-      <div className="h-[300px] w-full p-5 pt-4">
+      <div className="h-[320px] w-full p-5 pt-4">
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart data={data} margin={{ top: 10, right: 0, left: -20, bottom: 0 }}>
             <defs>
               <linearGradient id="colorRequests" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#3525CD" stopOpacity={0.15}/>
-                <stop offset="95%" stopColor="#3525CD" stopOpacity={0}/>
+                <stop offset="5%" stopColor="var(--text-primary)" stopOpacity={0.12}/>
+                <stop offset="95%" stopColor="var(--text-primary)" stopOpacity={0}/>
               </linearGradient>
             </defs>
             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border)" />
@@ -61,11 +61,11 @@ export function RequestVolumeChart({ data }: ChartProps) {
             <Area
               type="monotone"
               dataKey="requests"
-              stroke="#3525CD"
+              stroke="var(--text-primary)"
               fillOpacity={1}
               fill="url(#colorRequests)"
               strokeWidth={2}
-              activeDot={{ r: 4, strokeWidth: 0, fill: "#3525CD" }}
+              activeDot={{ r: 4, strokeWidth: 0, fill: "var(--text-primary)" }}
             />
           </AreaChart>
         </ResponsiveContainer>

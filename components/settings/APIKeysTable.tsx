@@ -2,7 +2,6 @@ import * as React from "react";
 import { Button } from "@/components/ui/button";
 import { Plus, Trash2, Info } from "lucide-react";
 import { StatusDot } from "@/components/shared/StatusDot";
-import { cn } from "@/lib/utils";
 
 type APIKey = {
   name: string;
@@ -67,8 +66,8 @@ export function APIKeysTable({ keys }: APIKeysTableProps) {
         </div>
       </div>
 
-      <div className="flex items-start gap-3 p-4 rounded-lg bg-primary/5 border border-primary/10">
-        <Info className="text-primary mt-0.5 shrink-0" size={16} />
+      <div className="flex items-start gap-3 p-4 rounded-lg bg-surface-dim border border-border">
+        <Info className="text-text-muted mt-0.5 shrink-0" size={16} />
         <p className="text-[13px] text-text-primary leading-relaxed">
           Never share your API keys in public repositories or client-side code. They carry the same privileges as your account.
         </p>

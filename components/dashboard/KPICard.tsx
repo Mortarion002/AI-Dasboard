@@ -3,8 +3,6 @@
 import * as React from "react";
 import { motion } from "framer-motion";
 import { Card } from "@/components/ui/card";
-import { Info, PieChart } from "lucide-react";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { AreaChart, Area, ResponsiveContainer } from "recharts";
 import { cn } from "@/lib/utils";
 
@@ -25,7 +23,7 @@ export function KPICard({ title, value, index, badge, icon, valueClassName, spar
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.08, duration: 0.4, ease: "easeOut" }}
     >
-      <Card className="p-5 h-[120px] flex flex-col justify-between hover:shadow-[0_4px_12px_rgba(0,0,0,0.02)] transition-shadow">
+      <Card className="p-5 h-[120px] flex flex-col justify-between border-border bg-surface-raised transition-colors hover:bg-surface-dim/70">
         <div className="flex justify-between items-start">
           <h3 className="label-text text-text-muted">{title}</h3>
           <div className="text-text-muted">
@@ -52,9 +50,9 @@ export function KPICard({ title, value, index, badge, icon, valueClassName, spar
                   <Area
                     type="monotone"
                     dataKey="value"
-                    stroke="#3525CD"
-                    fill="#3525CD"
-                    fillOpacity={0.15}
+                    stroke="var(--text-primary)"
+                    fill="var(--text-primary)"
+                    fillOpacity={0.08}
                     strokeWidth={1.5}
                     isAnimationActive={false}
                   />

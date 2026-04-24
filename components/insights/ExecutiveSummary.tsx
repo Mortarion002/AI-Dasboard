@@ -19,11 +19,11 @@ export function ExecutiveSummary() {
         </p>
       </div>
 
-      <div className="mt-6 border-l-2 border-primary bg-primary/5 p-4 rounded-r-md">
-        <h4 className="text-[10px] font-semibold text-primary uppercase tracking-wider mb-1">
+      <div className="mt-6 border-l-2 border-primary bg-surface-dim p-4 rounded-r-md">
+        <h4 className="text-[10px] font-semibold text-text-primary uppercase tracking-wider mb-1">
           RECOMMENDATION
         </h4>
-        <p className="text-[13px] text-primary italic">
+        <p className="text-[13px] text-text-muted italic">
           Proactively scale cache layer before weekend peak hours to mitigate potential bottlenecks.
         </p>
       </div>

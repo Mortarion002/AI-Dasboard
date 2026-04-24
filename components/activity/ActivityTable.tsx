@@ -68,8 +68,8 @@ export function ActivityTable({ data }: ActivityTableProps) {
                     <td className="px-5 py-3.5">
                       <div className="inline-flex items-center gap-1.5 px-2 py-1 rounded-full bg-surface-dim border border-border text-[12px] font-medium text-text-primary">
                         <span className={cn("w-1.5 h-1.5 rounded-full shrink-0", 
-                          item.model.includes("GPT") ? "bg-[#3525CD]" : 
-                          item.model.includes("Claude") ? "bg-[#D97706]" : "bg-[#16A34A]"
+                          item.model.includes("GPT") ? "bg-text-primary" : 
+                          item.model.includes("Claude") ? "bg-text-muted" : "bg-success"
                         )} />
                         {item.model}
                       </div>

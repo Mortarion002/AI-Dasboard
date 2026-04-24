@@ -3,6 +3,7 @@ import { fetchDashboardData } from "@/lib/mock-data";
 import { KPICard } from "@/components/dashboard/KPICard";
 import { RequestVolumeChart } from "@/components/dashboard/RequestVolumeChart";
 import { RecentActivity } from "@/components/dashboard/RecentActivity";
+import { SystemHealthGrid } from "@/components/dashboard/SystemHealthGrid";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Calendar, ChevronDown, Layers, Activity, AlertCircle, Clock } from "lucide-react";
@@ -54,7 +55,7 @@ export default async function DashboardPage() {
           index={2}
           title="AVG LATENCY"
           value={data.kpiMetrics.avgLatency}
-          valueClassName="text-warning"
+          valueClassName="text-text-primary"
           icon={<Clock size={16} />}
         />
         <KPICard
@@ -65,6 +66,7 @@ export default async function DashboardPage() {
         />
       </div>
 
+      <SystemHealthGrid />
       <RequestVolumeChart data={data.weeklyChartData} />
       <RecentActivity items={data.recentActivity} />
     </div>
