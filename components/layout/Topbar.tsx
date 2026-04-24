@@ -169,15 +169,13 @@ export function Topbar() {
         </Sheet>
 
         <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <button className="rounded-full outline-none ring-offset-background transition-transform hover:scale-[1.03] focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
-              <Avatar className="h-9 w-9 border border-border bg-surface-dim">
-                <AvatarFallback className="bg-surface-dim text-text-primary">
-                  <User size={16} />
-                </AvatarFallback>
-              </Avatar>
-              <span className="sr-only">Open account menu</span>
-            </button>
+          <DropdownMenuTrigger className="rounded-full outline-none ring-offset-background transition-transform hover:scale-[1.03] focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
+            <Avatar className="h-9 w-9 border border-border bg-surface-dim">
+              <AvatarFallback className="bg-surface-dim text-text-primary">
+                <User size={16} />
+              </AvatarFallback>
+            </Avatar>
+            <span className="sr-only">Open account menu</span>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-64">
             <DropdownMenuLabel>

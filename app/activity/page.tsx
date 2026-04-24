@@ -22,11 +22,9 @@ export default async function ActivityPage() {
         
         <div className="flex items-center gap-3 flex-wrap">
           <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm" className="h-9 font-normal text-text-primary bg-surface border-border">
-                Status: All
-                <ChevronDown className="ml-2 h-4 w-4 text-text-muted" />
-              </Button>
+            <DropdownMenuTrigger className="inline-flex h-9 items-center justify-center gap-1.5 rounded-md border border-border bg-surface px-2.5 text-sm font-normal text-text-primary transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+              Status: All
+              <ChevronDown className="ml-1 h-4 w-4 text-text-muted" />
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem>All</DropdownMenuItem>
@@ -37,11 +35,9 @@ export default async function ActivityPage() {
           </DropdownMenu>
 
           <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm" className="h-9 font-normal text-text-primary bg-surface border-border">
-                Model: All
-                <ChevronDown className="ml-2 h-4 w-4 text-text-muted" />
-              </Button>
+            <DropdownMenuTrigger className="inline-flex h-9 items-center justify-center gap-1.5 rounded-md border border-border bg-surface px-2.5 text-sm font-normal text-text-primary transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+              Model: All
+              <ChevronDown className="ml-1 h-4 w-4 text-text-muted" />
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem>All</DropdownMenuItem>

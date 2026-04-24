@@ -1,10 +1,18 @@
 "use client";
 
 import * as React from "react";
+import dynamic from "next/dynamic";
 import { Card } from "@/components/ui/card";
-import { AreaChart, Area, ResponsiveContainer } from "recharts";
 
 import { ModelUsageData } from "@/lib/mock-data";
+
+const SparklineArea = dynamic(
+  () => import("@/components/dashboard/SparklineArea").then((mod) => mod.SparklineArea),
+  {
+    ssr: false,
+    loading: () => <div className="h-full w-full rounded bg-surface-dim/50" />,
+  }
+);
 
 type ModelUsageProps = {
   data: ModelUsageData;
@@ -31,19 +39,7 @@ export function ModelUsageCard({ data }: ModelUsageProps) {
         
         <div className="flex-1 flex flex-col justify-center">
           <div className="h-[50px] w-full mb-3">
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={data.weeklyData}>
-                <Area
-                  type="monotone"
-                  dataKey="requests"
-                  stroke="var(--text-primary)"
-                  fill="var(--text-primary)"
-                  fillOpacity={0.08}
-                  strokeWidth={2}
-                  isAnimationActive={false}
-                />
-              </AreaChart>
-            </ResponsiveContainer>
+            <SparklineArea data={data.weeklyData.map((item) => ({ value: item.requests }))} strokeWidth={2} />
           </div>
           <div className="inline-flex self-start px-2 py-1 bg-surface-dim text-text-primary text-[11px] font-semibold rounded-full border border-border">
             +8.4% vs prior week

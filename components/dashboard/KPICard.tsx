@@ -1,10 +1,18 @@
 "use client";
 
 import * as React from "react";
+import dynamic from "next/dynamic";
 import { motion } from "framer-motion";
 import { Card } from "@/components/ui/card";
-import { AreaChart, Area, ResponsiveContainer } from "recharts";
 import { cn } from "@/lib/utils";
+
+const SparklineArea = dynamic(
+  () => import("@/components/dashboard/SparklineArea").then((mod) => mod.SparklineArea),
+  {
+    ssr: false,
+    loading: () => <div className="h-full w-full rounded bg-surface-dim/50" />,
+  }
+);
 
 type KPICardProps = {
   title: string;
@@ -45,19 +53,7 @@ export function KPICard({ title, value, index, badge, icon, valueClassName, spar
           
           {sparklineData && (
             <div className="w-[80px] h-[36px]">
-              <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={sparklineData}>
-                  <Area
-                    type="monotone"
-                    dataKey="value"
-                    stroke="var(--text-primary)"
-                    fill="var(--text-primary)"
-                    fillOpacity={0.08}
-                    strokeWidth={1.5}
-                    isAnimationActive={false}
-                  />
-                </AreaChart>
-              </ResponsiveContainer>
+              <SparklineArea data={sparklineData} />
             </div>
           )}
         </div>

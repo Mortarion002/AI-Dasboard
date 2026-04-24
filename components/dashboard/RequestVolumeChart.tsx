@@ -1,79 +1,28 @@
 "use client";
 
 import * as React from "react";
+import dynamic from "next/dynamic";
 import { Card } from "@/components/ui/card";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Button } from "@/components/ui/button";
 import { BarChart3, Download, Grid2X2, LineChart as LineChartIcon, MoreVertical, Waves } from "lucide-react";
-import {
-  Area,
-  AreaChart,
-  Bar,
-  BarChart,
-  CartesianGrid,
-  Line,
-  LineChart,
-  ResponsiveContainer,
-  Tooltip as RechartsTooltip,
-  XAxis,
-  YAxis,
-} from "recharts";
+import { cn } from "@/lib/utils";
+import type { RequestChartMode } from "@/components/dashboard/RequestVolumeChartCanvas";
+
+const RequestVolumeChartCanvas = dynamic(
+  () => import("@/components/dashboard/RequestVolumeChartCanvas").then((mod) => mod.RequestVolumeChartCanvas),
+  {
+    ssr: false,
+    loading: () => <div className="h-full w-full rounded-lg bg-surface-dim/40" />,
+  }
+);
 
 type ChartProps = {
   data: { day: string; requests: number }[];
 };
 
-type ChartMode = "area" | "line" | "bar";
-
-function ChartTooltip({ active, payload, label }: { active?: boolean; payload?: { value?: number }[]; label?: string }) {
-  if (active && payload && payload.length) {
-    return (
-      <div className="bg-surface border border-border shadow-[0_4px_12px_rgba(0,0,0,0.06)] rounded-lg p-3 text-sm">
-        <div className="text-text-muted mb-1 text-xs">{label}</div>
-        <div className="font-semibold text-primary">
-          {payload[0].value?.toLocaleString()} requests
-        </div>
-      </div>
-    );
-  }
-
-  return null;
-}
-
-function ChartAxes({ showGrid }: { showGrid: boolean }) {
-  return (
-    <>
-      {showGrid && <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border)" />}
-      <XAxis
-        dataKey="day"
-        axisLine={false}
-        tickLine={false}
-        tick={{ fontSize: 11, fill: "var(--text-muted)" }}
-        dy={10}
-      />
-      <YAxis
-        axisLine={false}
-        tickLine={false}
-        tick={{ fontSize: 11, fill: "var(--text-muted)" }}
-        tickFormatter={(value) => (value === 0 ? "0" : `${Number(value) / 1000}k`)}
-        domain={[0, 20000]}
-        ticks={[0, 5000, 10000, 15000, 20000]}
-      />
-      <RechartsTooltip content={<ChartTooltip />} />
-    </>
-  );
-}
-
 export function RequestVolumeChart({ data }: ChartProps) {
-  const [chartMode, setChartMode] = React.useState<ChartMode>("area");
+  const [chartMode, setChartMode] = React.useState<RequestChartMode>("area");
   const [showGrid, setShowGrid] = React.useState(true);
+  const [menuOpen, setMenuOpen] = React.useState(false);
 
   function exportCsv() {
     const csv = ["day,requests", ...data.map((item) => `${item.day},${item.requests}`)].join("\n");
@@ -85,6 +34,12 @@ export function RequestVolumeChart({ data }: ChartProps) {
     link.download = "request-volume-week.csv";
     link.click();
     URL.revokeObjectURL(url);
+    setMenuOpen(false);
+  }
+
+  function selectMode(mode: RequestChartMode) {
+    setChartMode(mode);
+    setMenuOpen(false);
   }
 
   return (
@@ -96,79 +51,67 @@ export function RequestVolumeChart({ data }: ChartProps) {
             Viewing {chartMode} chart {showGrid ? "with" : "without"} gridlines
           </p>
         </div>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon-sm" aria-label="Open chart options">
-              <MoreVertical size={16} />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-48">
-            <DropdownMenuLabel>Chart view</DropdownMenuLabel>
-            <DropdownMenuItem onClick={() => setChartMode("area")}>
-              <Waves className="mr-2 h-4 w-4" />
-              Area chart
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => setChartMode("line")}>
-              <LineChartIcon className="mr-2 h-4 w-4" />
-              Line chart
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => setChartMode("bar")}>
-              <BarChart3 className="mr-2 h-4 w-4" />
-              Bar chart
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={() => setShowGrid((value) => !value)}>
-              <Grid2X2 className="mr-2 h-4 w-4" />
-              {showGrid ? "Hide" : "Show"} gridlines
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={exportCsv}>
-              <Download className="mr-2 h-4 w-4" />
-              Export CSV
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
-      <div className="h-[320px] w-full p-5 pt-4">
-        <ResponsiveContainer width="100%" height="100%">
-          {chartMode === "area" ? (
-            <AreaChart data={data} margin={{ top: 10, right: 0, left: -20, bottom: 0 }}>
-              <defs>
-                <linearGradient id="colorRequests" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="var(--text-primary)" stopOpacity={0.12} />
-                  <stop offset="95%" stopColor="var(--text-primary)" stopOpacity={0} />
-                </linearGradient>
-              </defs>
-              <ChartAxes showGrid={showGrid} />
-              <Area
-                type="monotone"
-                dataKey="requests"
-                stroke="var(--text-primary)"
-                fillOpacity={1}
-                fill="url(#colorRequests)"
-                strokeWidth={2}
-                activeDot={{ r: 4, strokeWidth: 0, fill: "var(--text-primary)" }}
-              />
-            </AreaChart>
-          ) : chartMode === "line" ? (
-            <LineChart data={data} margin={{ top: 10, right: 0, left: -20, bottom: 0 }}>
-              <ChartAxes showGrid={showGrid} />
-              <Line
-                type="monotone"
-                dataKey="requests"
-                stroke="var(--text-primary)"
-                strokeWidth={2}
-                dot={{ r: 3, fill: "var(--surface)", stroke: "var(--text-primary)", strokeWidth: 1.5 }}
-                activeDot={{ r: 4, strokeWidth: 0, fill: "var(--text-primary)" }}
-              />
-            </LineChart>
-          ) : (
-            <BarChart data={data} margin={{ top: 10, right: 0, left: -20, bottom: 0 }}>
-              <ChartAxes showGrid={showGrid} />
-              <Bar dataKey="requests" fill="var(--text-primary)" radius={[4, 4, 0, 0]} barSize={28} />
-            </BarChart>
+        <div className="relative">
+          <button
+            type="button"
+            aria-label="Open chart options"
+            aria-expanded={menuOpen}
+            onClick={() => setMenuOpen((value) => !value)}
+            className={cn(
+              "inline-flex size-7 items-center justify-center rounded-md text-text-muted transition-colors hover:bg-surface-dim hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            )}
+          >
+            <MoreVertical size={16} />
+          </button>
+          {menuOpen && (
+            <div className="absolute right-0 top-9 z-20 w-48 rounded-lg border border-border bg-popover p-1 text-sm text-popover-foreground shadow-lg">
+              <div className="px-2 py-1.5 text-xs font-medium text-muted-foreground">Chart view</div>
+              <ChartMenuButton onClick={() => selectMode("area")}>
+                <Waves className="mr-2 h-4 w-4" />
+                Area chart
+              </ChartMenuButton>
+              <ChartMenuButton onClick={() => selectMode("line")}>
+                <LineChartIcon className="mr-2 h-4 w-4" />
+                Line chart
+              </ChartMenuButton>
+              <ChartMenuButton onClick={() => selectMode("bar")}>
+                <BarChart3 className="mr-2 h-4 w-4" />
+                Bar chart
+              </ChartMenuButton>
+              <div className="-mx-1 my-1 h-px bg-border" />
+              <ChartMenuButton onClick={() => setShowGrid((value) => !value)}>
+                <Grid2X2 className="mr-2 h-4 w-4" />
+                {showGrid ? "Hide" : "Show"} gridlines
+              </ChartMenuButton>
+              <ChartMenuButton onClick={exportCsv}>
+                <Download className="mr-2 h-4 w-4" />
+                Export CSV
+              </ChartMenuButton>
+            </div>
           )}
-        </ResponsiveContainer>
+        </div>
+      </div>
+      <div className="h-[320px] min-h-[320px] w-full min-w-0 p-5 pt-4">
+        <RequestVolumeChartCanvas data={data} chartMode={chartMode} showGrid={showGrid} />
       </div>
     </Card>
+  );
+}
+
+function ChartMenuButton({
+  children,
+  onClick,
+}: {
+  children: React.ReactNode;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="flex w-full items-center rounded-md px-2 py-1.5 text-left transition-colors hover:bg-accent hover:text-accent-foreground"
+    >
+      {children}
+    </button>
   );
 }

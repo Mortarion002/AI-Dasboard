@@ -5,7 +5,6 @@ import { RequestVolumeChart } from "@/components/dashboard/RequestVolumeChart";
 import { RecentActivity } from "@/components/dashboard/RecentActivity";
 import { SystemHealthGrid } from "@/components/dashboard/SystemHealthGrid";
 import { ProviderStatusPanel } from "@/components/dashboard/ProviderStatusPanel";
-import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Calendar, ChevronDown, Layers, Activity, AlertCircle, Clock } from "lucide-react";
 import { getLiveProviderStatuses } from "@/lib/provider-status";
@@ -27,12 +26,10 @@ export default async function DashboardPage() {
       <div className="flex items-center justify-between mb-6">
         <h1 className="headline-lg text-text-primary">Overview</h1>
         <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" size="sm" className="h-9 font-normal text-text-muted bg-surface">
-              <Calendar className="mr-2 h-4 w-4" />
-              Last 7 Days
-              <ChevronDown className="ml-2 h-4 w-4" />
-            </Button>
+          <DropdownMenuTrigger className="inline-flex h-9 items-center justify-center gap-1.5 rounded-md border border-border bg-surface px-2.5 text-sm font-normal text-text-muted transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+            <Calendar className="mr-1 h-4 w-4" />
+            Last 7 Days
+            <ChevronDown className="ml-1 h-4 w-4" />
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-[160px]">
             <DropdownMenuItem>Today</DropdownMenuItem>
