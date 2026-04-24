@@ -23,9 +23,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning className={`${inter.variable} antialiased h-full`}>
+    <html lang="en" suppressHydrationWarning className={`${inter.variable} dark antialiased h-full`}>
       <body className="h-full flex overflow-hidden bg-background text-foreground">
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+        <ThemeProvider attribute="class" defaultTheme="dark" enableSystem disableTransitionOnChange>
           <TooltipProvider>
             <Sidebar />
             <div className="flex-1 flex flex-col min-w-0">
