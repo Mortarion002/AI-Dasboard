@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { useActionState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
 import {
@@ -28,6 +29,8 @@ import { Separator } from "@/components/ui/separator";
 import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
+import { saveProfileAction, type ProfileActionState } from "@/app/settings/actions";
+import type { OperatorProfile } from "@/lib/db";
 import { cn } from "@/lib/utils";
 
 type APIKey = {
@@ -40,6 +43,7 @@ type APIKey = {
 type SettingsWorkspaceProps = {
   apiKeys: APIKey[];
   initialPanel: string;
+  profile: OperatorProfile;
 };
 
 const panels = [
@@ -55,7 +59,7 @@ function isPanelId(value: string): value is PanelId {
   return panels.some((panel) => panel.id === value);
 }
 
-export function SettingsWorkspace({ apiKeys, initialPanel }: SettingsWorkspaceProps) {
+export function SettingsWorkspace({ apiKeys, initialPanel, profile }: SettingsWorkspaceProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const requestedPanel = searchParams.get("panel") ?? initialPanel;
@@ -118,7 +122,9 @@ export function SettingsWorkspace({ apiKeys, initialPanel }: SettingsWorkspacePr
             </div>
             <p className="mt-2 max-w-2xl text-sm leading-6 text-text-muted">{activeMeta.description}</p>
           </div>
-          <Button>Save changes</Button>
+          <Button form={activePanel === "profile" ? "profile-form" : undefined}>
+            Save changes
+          </Button>
         </div>
 
         <motion.div
@@ -128,7 +134,7 @@ export function SettingsWorkspace({ apiKeys, initialPanel }: SettingsWorkspacePr
           transition={{ duration: 0.22, ease: "easeOut" }}
           className="max-w-5xl"
         >
-          {activePanel === "profile" && <ProfilePanel />}
+          {activePanel === "profile" && <ProfilePanel profile={profile} />}
           {activePanel === "api-keys" && <ApiKeysPanel apiKeys={apiKeys} />}
           {activePanel === "preferences" && <PreferencesPanel />}
           {activePanel === "billing" && <BillingPanel />}
@@ -138,36 +144,60 @@ export function SettingsWorkspace({ apiKeys, initialPanel }: SettingsWorkspacePr
   );
 }
 
-function ProfilePanel() {
+function ProfilePanel({ profile }: { profile: OperatorProfile }) {
+  const initialState: ProfileActionState = {
+    status: "idle",
+    message: "",
+  };
+  const [state, formAction, pending] = useActionState(saveProfileAction, initialState);
+
   return (
     <div className="grid gap-4 lg:grid-cols-[1fr_320px]">
       <Card>
         <CardHeader>
           <CardTitle>Operator profile</CardTitle>
         </CardHeader>
-        <CardContent className="grid gap-5">
+        <CardContent>
+          <form id="profile-form" action={formAction} className="grid gap-5">
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="grid gap-2">
               <Label htmlFor="full-name">Full name</Label>
-              <Input id="full-name" defaultValue="Morgan Lee" />
+              <Input id="full-name" name="fullName" defaultValue={profile.fullName} />
             </div>
             <div className="grid gap-2">
               <Label htmlFor="role">Role</Label>
-              <Input id="role" defaultValue="Platform Owner" />
+              <Input id="role" name="role" defaultValue={profile.role} />
             </div>
           </div>
           <div className="grid gap-2">
             <Label htmlFor="email">Email</Label>
-            <Input id="email" type="email" defaultValue="admin@aiops.com" />
+            <Input id="email" name="email" type="email" defaultValue={profile.email} />
           </div>
           <div className="grid gap-2">
             <Label htmlFor="bio">Operational note</Label>
             <Textarea
               id="bio"
-              defaultValue="Owns production routing, model governance, and incident response for Core Systems."
+              name="operationalNote"
+              defaultValue={profile.operationalNote}
               className="min-h-28"
             />
           </div>
+          <div className="flex items-center justify-between gap-3">
+            <p
+              className={cn(
+                "text-xs",
+                state.status === "success" && "text-success",
+                state.status === "error" && "text-error",
+                state.status === "idle" && "text-text-muted"
+              )}
+            >
+              {pending ? "Saving profile..." : state.message || `Last updated ${new Date(profile.updatedAt).toLocaleString()}`}
+            </p>
+            <Button type="submit" disabled={pending}>
+              {pending ? "Saving..." : "Save profile"}
+            </Button>
+          </div>
+          </form>
         </CardContent>
       </Card>
 
@@ -178,9 +208,9 @@ function ProfilePanel() {
           </CardHeader>
           <CardContent className="space-y-4">
             {[
-              ["MFA enforced", "Authenticator app active"],
-              ["SSO domain", "core-systems.io"],
-              ["Last sign-in", "Today at 02:18"],
+              ["MFA enforced", profile.mfaMethod],
+              ["SSO domain", profile.ssoDomain],
+              ["Last sign-in", profile.lastSignIn],
             ].map(([label, value]) => (
               <div key={label} className="flex items-center justify-between gap-3 text-sm">
                 <span className="text-text-muted">{label}</span>
