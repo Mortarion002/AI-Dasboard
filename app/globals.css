@@ -1,0 +1,127 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--text-primary);
+  
+  --color-primary: var(--primary);
+  --color-primary-light: var(--primary-light);
+  --color-primary-muted: var(--primary-muted);
+  --color-primary-foreground: #FFFFFF;
+  
+  --color-surface: var(--surface);
+  --color-surface-dim: var(--surface-dim);
+  
+  --color-border: var(--border);
+  --color-input: var(--border);
+  --color-ring: var(--primary);
+  
+  --color-muted: var(--surface-dim);
+  --color-muted-foreground: var(--text-muted);
+  
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-error: var(--error);
+  --color-destructive: var(--error);
+  --color-destructive-foreground: #FFFFFF;
+  
+  --color-card: var(--surface);
+  --color-card-foreground: var(--text-primary);
+  
+  --color-popover: var(--surface);
+  --color-popover-foreground: var(--text-primary);
+  
+  --color-secondary: var(--surface-dim);
+  --color-secondary-foreground: var(--text-primary);
+  
+  --color-accent: var(--primary-light);
+  --color-accent-foreground: var(--primary);
+
+  --radius-sm: 2px;
+  --radius-md: 4px;
+  --radius-lg: 8px;
+  --radius-xl: 12px;
+  --radius-2xl: 16px;
+  --radius-3xl: 24px;
+  --radius-4xl: 32px;
+  
+  --font-sans: var(--font-inter);
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}
+
+:root {
+  --primary: #3525CD;
+  --primary-light: #F0EEFF;
+  --primary-muted: #C3C0FF;
+  --background: #F7F9FB;
+  --surface: #FFFFFF;
+  --surface-dim: #F2F4F6;
+  --border: #E2E4E9;
+  --text-primary: #191C1E;
+  --text-muted: #777587;
+  --success: #16A34A;
+  --warning: #D97706;
+  --error: #DC2626;
+  --radius: 4px;
+}
+
+.dark {
+  --primary: #818CF8;
+  --primary-light: #3730A3;
+  --primary-muted: #312E81;
+  --background: #0B0F19;
+  --surface: #111827;
+  --surface-dim: #1F2937;
+  --border: #374151;
+  --text-primary: #F9FAFB;
+  --text-muted: #9CA3AF;
+  --success: #22C55E;
+  --warning: #F59E0B;
+  --error: #EF4444;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  html {
+    @apply font-sans;
+  }
+  
+  .headline-lg {
+    font-size: 30px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+  }
+  .headline-md {
+    font-size: 24px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+  }
+  .headline-sm {
+    font-size: 18px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+  .body-md {
+    font-size: 14px;
+    font-weight: 400;
+  }
+  .body-sm {
+    font-size: 13px;
+    font-weight: 400;
+  }
+  .label-text {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+}
