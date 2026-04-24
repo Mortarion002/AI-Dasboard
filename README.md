@@ -18,6 +18,7 @@ Key goals:
 
 - Dashboard overview with KPI cards for requests, token usage, latency, and error rate.
 - System Health section showing uptime, routing lanes, worker counts, cache health, and budget usage.
+- Public provider status panel backed by free Statuspage JSON APIs for Vercel, GitHub, OpenAI, and Anthropic.
 - Request volume chart and recent activity timeline.
 - Activity Logs page with expandable rows for prompt, response, tokens, cost, latency, and request metadata.
 - Insights page with alert banners, executive summary, model usage, and topic distribution.
@@ -42,6 +43,7 @@ Key goals:
 - Lucide React icons
 - Zustand for small UI state persistence
 - next-themes for theme switching
+- better-sqlite3 for local SQLite persistence
 
 ## Project Structure
 
@@ -64,7 +66,10 @@ components/
   ui/             shadcn-generated UI components
 
 lib/
+  db.ts           SQLite connection, schema migration, profile persistence, status snapshots
   mock-data.ts    Local mock data used by all routes
+  provider-status.ts
+                  Public provider status fetching with SQLite fallback
   utils.ts        Shared utility helpers
 
 store/
@@ -166,13 +171,57 @@ components/settings/SettingsWorkspace.tsx
 
 ## Mock Data
 
-The dashboard currently uses local mock data from:
+The dashboard still uses local mock data for generated AI activity logs, model usage, and demo billing information:
 
 ```text
 lib/mock-data.ts
 ```
 
-This makes the UI easy to run without a backend. When connecting real services later, `fetchDashboardData()` is the central place to replace with API calls or server-side data access.
+Live provider health now comes from public Statuspage-compatible JSON APIs:
+
+```text
+https://www.vercel-status.com/api/v2/summary.json
+https://www.githubstatus.com/api/v2/summary.json
+https://status.openai.com/api/v2/summary.json
+https://status.anthropic.com/api/v2/summary.json
+```
+
+No API key is required for those read-only status endpoints. If the network is unavailable or a provider request fails, the app falls back to the latest provider status snapshots stored in SQLite.
+
+## SQLite Persistence
+
+The app uses a local SQLite database for user-editable profile settings and cached provider-status snapshots.
+
+Default database path:
+
+```text
+data/aiops-command.db
+```
+
+You can override it with:
+
+```bash
+SQLITE_DB_PATH="C:/path/to/aiops-command.db" npm run dev
+```
+
+The SQLite file is intentionally ignored by git:
+
+```text
+data/*.db
+data/*.db-*
+```
+
+Schema migration and seed logic live in:
+
+```text
+lib/db.ts
+```
+
+The Profile settings form saves through a Next.js Server Action:
+
+```text
+app/settings/actions.ts
+```
 
 ## Verification
 
@@ -200,9 +249,10 @@ Then connect the repository in the Vercel dashboard or deploy with the Vercel CL
 ## Future Improvements
 
 - Replace mock data with a real API or database-backed data source.
+- Add a real API key CRUD flow backed by SQLite.
 - Add authentication and role-based access controls.
 - Add toast feedback for save actions and key generation.
-- Add persistent user profile and billing state.
+- Add persistent billing and preference state.
 - Add real filtering and pagination on Activity Logs.
 - Add chart SSR guards if the Recharts build warnings need to be silenced.
 
