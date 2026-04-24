@@ -1,7 +1,9 @@
 import * as React from "react";
+import { useTransition } from "react";
 import { Button } from "@/components/ui/button";
-import { Plus, Trash2, Info } from "lucide-react";
+import { Plus, Trash2, Info, Loader2 } from "lucide-react";
 import { StatusDot } from "@/components/shared/StatusDot";
+import { generateApiKeyAction, deleteApiKeyAction } from "@/app/settings/actions";
 
 type APIKey = {
   name: string;
@@ -15,6 +17,20 @@ type APIKeysTableProps = {
 };
 
 export function APIKeysTable({ keys }: APIKeysTableProps) {
+  const [isPending, startTransition] = useTransition();
+
+  const handleGenerate = () => {
+    startTransition(() => {
+      generateApiKeyAction();
+    });
+  };
+
+  const handleDelete = (keyString: string) => {
+    startTransition(() => {
+      deleteApiKeyAction(keyString);
+    });
+  };
+
   return (
     <div className="w-full">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-4">
@@ -22,8 +38,12 @@ export function APIKeysTable({ keys }: APIKeysTableProps) {
           <h2 className="text-2xl font-semibold text-text-primary tracking-tight">API Keys</h2>
           <p className="text-sm text-text-muted mt-1">Manage your secret keys for API authentication.</p>
         </div>
-        <Button className="bg-primary hover:bg-primary/90 text-primary-foreground h-9 font-medium px-4">
-          <Plus className="mr-2 h-4 w-4" />
+        <Button 
+          onClick={handleGenerate} 
+          disabled={isPending}
+          className="bg-primary hover:bg-primary/90 text-primary-foreground h-9 font-medium px-4"
+        >
+          {isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Plus className="mr-2 h-4 w-4" />}
           Generate New Key
         </Button>
       </div>
@@ -55,7 +75,11 @@ export function APIKeysTable({ keys }: APIKeysTableProps) {
                     {item.created}
                   </td>
                   <td className="px-5 py-3.5 text-center">
-                    <button className="text-text-muted hover:text-error transition-colors p-1.5 rounded hover:bg-error/10">
+                    <button 
+                      onClick={() => handleDelete(item.key)}
+                      disabled={isPending}
+                      className="text-text-muted hover:text-error disabled:opacity-50 transition-colors p-1.5 rounded hover:bg-error/10"
+                    >
                       <Trash2 size={16} />
                     </button>
                   </td>

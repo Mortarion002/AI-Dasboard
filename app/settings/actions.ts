@@ -71,3 +71,15 @@ export async function savePlanAction(
     };
   }
 }
+
+export async function generateApiKeyAction() {
+  const { addMockApiKey } = await import("@/lib/mock-data");
+  addMockApiKey("Dynamic Key " + new Date().getSeconds());
+  revalidatePath("/", "layout");
+}
+
+export async function deleteApiKeyAction(keyString: string) {
+  const { removeMockApiKey } = await import("@/lib/mock-data");
+  removeMockApiKey(keyString);
+  revalidatePath("/", "layout");
+}

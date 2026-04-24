@@ -102,11 +102,26 @@ export const topTopics = [
   { name: "Code Generation", percentage: 10, color: "var(--primary)" }
 ];
 
-export const apiKeys = [
+export let apiKeys = [
   { name: "Production App", key: "sk-proj-••••••••••••••••", created: "Oct 12, 2023", active: true },
   { name: "Staging Environment", key: "sk-test-••••••••••••••••", created: "Nov 05, 2023", active: false },
   { name: "Developer Local", key: "sk-dev-••••••••••••••••", created: "Jan 18, 2024", active: true }
 ];
+
+export function addMockApiKey(name: string = "New Generated Key") {
+  const randomStr = Math.random().toString(36).substring(2, 8);
+  const newKey = {
+    name,
+    key: `sk-new-${randomStr}••••••••••••••••`,
+    created: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+    active: true
+  };
+  apiKeys = [newKey, ...apiKeys];
+}
+
+export function removeMockApiKey(keyString: string) {
+  apiKeys = apiKeys.filter(k => k.key !== keyString);
+}
 
 export async function fetchDashboardData() {
   await new Promise(r => setTimeout(r, 600));
