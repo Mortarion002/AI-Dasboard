@@ -205,3 +205,7 @@ Then connect the repository in the Vercel dashboard or deploy with the Vercel CL
 - Add persistent user profile and billing state.
 - Add real filtering and pagination on Activity Logs.
 - Add chart SSR guards if the Recharts build warnings need to be silenced.
+
+
+## LICENSE
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
