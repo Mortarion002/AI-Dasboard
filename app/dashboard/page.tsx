@@ -4,16 +4,23 @@ import { KPICard } from "@/components/dashboard/KPICard";
 import { RequestVolumeChart } from "@/components/dashboard/RequestVolumeChart";
 import { RecentActivity } from "@/components/dashboard/RecentActivity";
 import { SystemHealthGrid } from "@/components/dashboard/SystemHealthGrid";
+import { ProviderStatusPanel } from "@/components/dashboard/ProviderStatusPanel";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Calendar, ChevronDown, Layers, Activity, AlertCircle, Clock } from "lucide-react";
+import { getLiveProviderStatuses } from "@/lib/provider-status";
 
 export const metadata = {
   title: "Dashboard | AIOps Command",
 };
 
+export const dynamic = "force-dynamic";
+
 export default async function DashboardPage() {
-  const data = await fetchDashboardData();
+  const [data, providerStatuses] = await Promise.all([
+    fetchDashboardData(),
+    getLiveProviderStatuses(),
+  ]);
 
   return (
     <div className="p-6 max-w-7xl mx-auto w-full pb-20">
@@ -67,6 +74,7 @@ export default async function DashboardPage() {
       </div>
 
       <SystemHealthGrid />
+      <ProviderStatusPanel statuses={providerStatuses} />
       <RequestVolumeChart data={data.weeklyChartData} />
       <RecentActivity items={data.recentActivity} />
     </div>

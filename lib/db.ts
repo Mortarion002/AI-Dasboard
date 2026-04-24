@@ -14,6 +14,18 @@ export type OperatorProfile = {
   updatedAt: string;
 };
 
+export type ProviderStatusSnapshot = {
+  provider: string;
+  pageUrl: string;
+  status: string;
+  indicator: string;
+  componentCount: number;
+  degradedComponents: number;
+  incidentCount: number;
+  updatedAt: string;
+  fetchedAt: string;
+};
+
 let db: Database.Database | null = null;
 
 function getDbPath() {
@@ -44,6 +56,18 @@ function migrate(database: Database.Database) {
       mfa_method TEXT NOT NULL,
       last_sign_in TEXT NOT NULL,
       updated_at TEXT NOT NULL
+    );
+
+    CREATE TABLE IF NOT EXISTS provider_status_snapshots (
+      provider TEXT PRIMARY KEY,
+      page_url TEXT NOT NULL,
+      status TEXT NOT NULL,
+      indicator TEXT NOT NULL,
+      component_count INTEGER NOT NULL,
+      degraded_components INTEGER NOT NULL,
+      incident_count INTEGER NOT NULL,
+      updated_at TEXT NOT NULL,
+      fetched_at TEXT NOT NULL
     );
   `);
 
@@ -78,6 +102,95 @@ function migrate(database: Database.Database) {
         new Date().toISOString()
       );
   }
+
+  const providerCount = database
+    .prepare("SELECT COUNT(*) AS count FROM provider_status_snapshots")
+    .get() as { count: number };
+
+  if (providerCount.count === 0) {
+    seedProviderSnapshots(database);
+  }
+}
+
+function seedProviderSnapshots(database: Database.Database) {
+  const fallbackRows: ProviderStatusSnapshot[] = [
+    {
+      provider: "Vercel",
+      pageUrl: "https://www.vercel-status.com",
+      status: "All Systems Operational",
+      indicator: "none",
+      componentCount: 64,
+      degradedComponents: 0,
+      incidentCount: 0,
+      updatedAt: new Date().toISOString(),
+      fetchedAt: new Date().toISOString(),
+    },
+    {
+      provider: "GitHub",
+      pageUrl: "https://www.githubstatus.com",
+      status: "All Systems Operational",
+      indicator: "none",
+      componentCount: 12,
+      degradedComponents: 0,
+      incidentCount: 0,
+      updatedAt: new Date().toISOString(),
+      fetchedAt: new Date().toISOString(),
+    },
+    {
+      provider: "OpenAI",
+      pageUrl: "https://status.openai.com",
+      status: "Status page data unavailable",
+      indicator: "unknown",
+      componentCount: 25,
+      degradedComponents: 0,
+      incidentCount: 0,
+      updatedAt: new Date().toISOString(),
+      fetchedAt: new Date().toISOString(),
+    },
+    {
+      provider: "Anthropic",
+      pageUrl: "https://status.anthropic.com",
+      status: "All Systems Operational",
+      indicator: "none",
+      componentCount: 6,
+      degradedComponents: 0,
+      incidentCount: 0,
+      updatedAt: new Date().toISOString(),
+      fetchedAt: new Date().toISOString(),
+    },
+  ];
+
+  const insert = database.prepare(`
+    INSERT OR REPLACE INTO provider_status_snapshots (
+      provider,
+      page_url,
+      status,
+      indicator,
+      component_count,
+      degraded_components,
+      incident_count,
+      updated_at,
+      fetched_at
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `);
+
+  const transaction = database.transaction((rows: ProviderStatusSnapshot[]) => {
+    for (const row of rows) {
+      insert.run(
+        row.provider,
+        row.pageUrl,
+        row.status,
+        row.indicator,
+        row.componentCount,
+        row.degradedComponents,
+        row.incidentCount,
+        row.updatedAt,
+        row.fetchedAt
+      );
+    }
+  });
+
+  transaction(fallbackRows);
 }
 
 type ProfileRow = {
@@ -134,4 +247,68 @@ export function updateOperatorProfile(profile: Pick<OperatorProfile, "fullName" 
     .run(profile.fullName, profile.role, profile.email, profile.operationalNote, updatedAt);
 
   return getOperatorProfile();
+}
+
+type ProviderStatusRow = {
+  provider: string;
+  page_url: string;
+  status: string;
+  indicator: string;
+  component_count: number;
+  degraded_components: number;
+  incident_count: number;
+  updated_at: string;
+  fetched_at: string;
+};
+
+function mapProviderStatus(row: ProviderStatusRow): ProviderStatusSnapshot {
+  return {
+    provider: row.provider,
+    pageUrl: row.page_url,
+    status: row.status,
+    indicator: row.indicator,
+    componentCount: row.component_count,
+    degradedComponents: row.degraded_components,
+    incidentCount: row.incident_count,
+    updatedAt: row.updated_at,
+    fetchedAt: row.fetched_at,
+  };
+}
+
+export function getProviderStatusSnapshots() {
+  const rows = getDb()
+    .prepare("SELECT * FROM provider_status_snapshots ORDER BY provider ASC")
+    .all() as ProviderStatusRow[];
+
+  return rows.map(mapProviderStatus);
+}
+
+export function upsertProviderStatusSnapshot(snapshot: ProviderStatusSnapshot) {
+  getDb()
+    .prepare(`
+      INSERT OR REPLACE INTO provider_status_snapshots (
+        provider,
+        page_url,
+        status,
+        indicator,
+        component_count,
+        degraded_components,
+        incident_count,
+        updated_at,
+        fetched_at
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `)
+    .run(
+      snapshot.provider,
+      snapshot.pageUrl,
+      snapshot.status,
+      snapshot.indicator,
+      snapshot.componentCount,
+      snapshot.degradedComponents,
+      snapshot.incidentCount,
+      snapshot.updatedAt,
+      snapshot.fetchedAt
+    );
+
+  return snapshot;
 }
