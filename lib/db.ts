@@ -12,6 +12,7 @@ export type OperatorProfile = {
   mfaMethod: string;
   lastSignIn: string;
   updatedAt: string;
+  plan: string;
 };
 
 export type ProviderStatusSnapshot = {
@@ -70,6 +71,12 @@ function migrate(database: Database.Database) {
       fetched_at TEXT NOT NULL
     );
   `);
+
+  try {
+    database.exec("ALTER TABLE operator_profiles ADD COLUMN plan TEXT NOT NULL DEFAULT 'Scale'");
+  } catch (e) {
+    // Ignore if column already exists
+  }
 
   const existing = database
     .prepare("SELECT id FROM operator_profiles WHERE id = ?")
@@ -203,6 +210,7 @@ type ProfileRow = {
   mfa_method: string;
   last_sign_in: string;
   updated_at: string;
+  plan: string;
 };
 
 function mapProfile(row: ProfileRow): OperatorProfile {
@@ -216,6 +224,7 @@ function mapProfile(row: ProfileRow): OperatorProfile {
     mfaMethod: row.mfa_method,
     lastSignIn: row.last_sign_in,
     updatedAt: row.updated_at,
+    plan: row.plan || "Scale",
   };
 }
 
@@ -245,6 +254,21 @@ export function updateOperatorProfile(profile: Pick<OperatorProfile, "fullName" 
       WHERE id = 'default'
     `)
     .run(profile.fullName, profile.role, profile.email, profile.operationalNote, updatedAt);
+
+  return getOperatorProfile();
+}
+
+export function updateOperatorPlan(plan: string) {
+  const updatedAt = new Date().toISOString();
+
+  getDb()
+    .prepare(`
+      UPDATE operator_profiles
+      SET plan = ?,
+          updated_at = ?
+      WHERE id = 'default'
+    `)
+    .run(plan, updatedAt);
 
   return getOperatorProfile();
 }

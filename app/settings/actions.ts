@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { updateOperatorProfile } from "@/lib/db";
+import { updateOperatorProfile, updateOperatorPlan } from "@/lib/db";
 
 export type ProfileActionState = {
   status: "idle" | "success" | "error";
@@ -45,6 +45,29 @@ export async function saveProfileAction(
     return {
       status: "error",
       message: error instanceof Error ? error.message : "Unable to save profile.",
+    };
+  }
+}
+
+export async function savePlanAction(
+  _previousState: ProfileActionState,
+  formData: FormData
+): Promise<ProfileActionState> {
+  try {
+    const plan = readRequiredString(formData, "plan");
+
+    updateOperatorPlan(plan);
+
+    revalidatePath("/", "layout");
+
+    return {
+      status: "success",
+      message: "Plan updated.",
+    };
+  } catch (error) {
+    return {
+      status: "error",
+      message: error instanceof Error ? error.message : "Unable to save plan.",
     };
   }
 }
