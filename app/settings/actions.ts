@@ -35,7 +35,7 @@ export async function saveProfileAction(
       operationalNote,
     });
 
-    revalidatePath("/settings");
+    revalidatePath("/", "layout");
 
     return {
       status: "success",
