@@ -4,7 +4,7 @@ import { AlertBanner } from "@/components/insights/AlertBanner";
 import { ExecutiveSummary } from "@/components/insights/ExecutiveSummary";
 import { ModelUsageCard } from "@/components/insights/ModelUsageCard";
 import { TopicsChart } from "@/components/insights/TopicsChart";
-import { Button } from "@/components/ui/button";
+import { ExportButton } from "@/components/insights/ExportButton";
 
 export const metadata = {
   title: "System Insights | AIOps Command",
@@ -17,9 +17,7 @@ export default async function InsightsPage() {
     <div className="p-6 max-w-7xl mx-auto w-full pb-20">
       <div className="flex items-center justify-between mb-6">
         <h1 className="headline-lg text-text-primary">System Insights</h1>
-        <Button variant="outline" className="h-9 border-border bg-surface text-text-primary font-medium hover:bg-surface-dim">
-          Export Report
-        </Button>
+        <ExportButton data={data} />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
