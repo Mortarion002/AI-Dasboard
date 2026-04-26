@@ -30,7 +30,15 @@ export type ProviderStatusSnapshot = {
 let db: Database.Database | null = null;
 
 function getDbPath() {
-  return process.env.SQLITE_DB_PATH ?? path.join(process.cwd(), "data", "aiops-command.db");
+  if (process.env.SQLITE_DB_PATH) {
+    return process.env.SQLITE_DB_PATH;
+  }
+
+  if (process.env.VERCEL === "1") {
+    return path.join("/tmp", "aiops-command.db");
+  }
+
+  return path.join(process.cwd(), "data", "aiops-command.db");
 }
 
 export function getDb() {
@@ -74,7 +82,7 @@ function migrate(database: Database.Database) {
 
   try {
     database.exec("ALTER TABLE operator_profiles ADD COLUMN plan TEXT NOT NULL DEFAULT 'Scale'");
-  } catch (e) {
+  } catch {
     // Ignore if column already exists
   }
 

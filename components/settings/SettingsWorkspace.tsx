@@ -59,6 +59,10 @@ function isPanelId(value: string): value is PanelId {
   return panels.some((panel) => panel.id === value);
 }
 
+function formatUpdatedAt(value: string) {
+  return value ? `${value.slice(0, 16).replace("T", " ")} UTC` : "unknown";
+}
+
 export function SettingsWorkspace({ apiKeys, initialPanel, profile }: SettingsWorkspaceProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -195,7 +199,7 @@ function ProfilePanel({ profile }: { profile: OperatorProfile }) {
                 state.status === "idle" && "text-text-muted"
               )}
             >
-              {pending ? "Saving profile..." : state.message || `Last updated ${new Date(profile.updatedAt).toLocaleString()}`}
+              {pending ? "Saving profile..." : state.message || `Last updated ${formatUpdatedAt(profile.updatedAt)}`}
             </p>
             <Button type="submit" disabled={pending}>
               {pending ? "Saving..." : "Save profile"}
@@ -370,7 +374,7 @@ function BillingPanel({ profile }: { profile: OperatorProfile }) {
             </div>
             
             <div className="flex flex-col items-start sm:items-end gap-2 shrink-0">
-              <Select name="plan" defaultValue={currentPlan}>
+              <Select name="plan" defaultValue={currentPlan} disabled={pending}>
                 <SelectTrigger className="w-[140px]">
                   <WalletCards className="mr-2 h-4 w-4 shrink-0" />
                   <span className="truncate flex-1 text-left"><SelectValue placeholder="Manage plan" /></span>
@@ -382,9 +386,9 @@ function BillingPanel({ profile }: { profile: OperatorProfile }) {
                   <SelectItem value="Scale">Scale</SelectItem>
                 </SelectContent>
               </Select>
-              {state.message && (
+              {(pending || state.message) && (
                 <p className={cn("text-xs", state.status === "success" ? "text-success" : "text-error")}>
-                  {state.message}
+                  {pending ? "Saving plan..." : state.message}
                 </p>
               )}
             </div>

@@ -232,6 +232,14 @@ Default database path:
 data/aiops-command.db
 ```
 
+On Vercel, the app automatically uses:
+
+```text
+/tmp/aiops-command.db
+```
+
+This avoids read-only filesystem failures in Vercel Functions, but `/tmp` is ephemeral. For production-grade persistence on Vercel, move profile/settings data to a managed database such as Vercel Postgres, Neon, Supabase, Turso/libSQL, or another external database.
+
 You can override it with:
 
 ```bash

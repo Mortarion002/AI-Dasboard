@@ -55,11 +55,6 @@ export function Topbar({ profile }: { profile?: OperatorProfile }) {
   const setCommandPaletteOpen = useUIStore((state) => state.setCommandPaletteOpen);
   const { resolvedTheme, setTheme } = useTheme();
   const [readAll, setReadAll] = React.useState(false);
-  const [mounted, setMounted] = React.useState(false);
-
-  React.useEffect(() => {
-    setMounted(true);
-  }, []);
 
   const isDark = resolvedTheme !== "light";
   const unreadCount = readAll ? 0 : notifications.filter((item) => item.unread).length;
@@ -115,12 +110,13 @@ export function Topbar({ profile }: { profile?: OperatorProfile }) {
           className="relative"
         >
           <motion.span
-            key={mounted && isDark ? "moon" : "sun"}
+            key={isDark ? "moon" : "sun"}
+            suppressHydrationWarning
             initial={{ opacity: 0, rotate: -20, scale: 0.8 }}
             animate={{ opacity: 1, rotate: 0, scale: 1 }}
             transition={{ duration: 0.18 }}
           >
-            {mounted ? (isDark ? <Moon size={17} /> : <Sun size={17} />) : <Moon size={17} className="opacity-0" />}
+            {isDark ? <Moon size={17} /> : <Sun size={17} />}
           </motion.span>
         </Button>
 
@@ -219,11 +215,11 @@ export function Topbar({ profile }: { profile?: OperatorProfile }) {
             <DropdownMenuSeparator />
             <div className="flex items-center justify-between px-2 py-1.5">
               <span className="text-sm text-text-muted">Dark mode</span>
-              {mounted ? (
-                <Switch checked={isDark} onCheckedChange={(checked) => setTheme(checked ? "dark" : "light")} />
-              ) : (
-                <Switch checked={true} disabled />
-              )}
+              <Switch
+                checked={isDark}
+                onCheckedChange={(checked) => setTheme(checked ? "dark" : "light")}
+                suppressHydrationWarning
+              />
             </div>
           </DropdownMenuContent>
         </DropdownMenu>

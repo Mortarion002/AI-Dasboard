@@ -50,9 +50,20 @@ export function ActivityLogsClient({ allLogs }: { allLogs: ActivityLog[] }) {
   const safePage = Math.min(page, totalPages);
   const paginated = filtered.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
 
-  React.useEffect(() => {
+  function updateStatusFilter(value: StatusFilter) {
+    setStatusFilter(value);
     setPage(1);
-  }, [statusFilter, modelFilter, dateFilter]);
+  }
+
+  function updateModelFilter(value: string) {
+    setModelFilter(value);
+    setPage(1);
+  }
+
+  function updateDateFilter(value: string) {
+    setDateFilter(value);
+    setPage(1);
+  }
 
   const handleExport = () => {
     const headers = ["Req ID", "Status", "Model", "Latency", "Date", "Timestamp", "Tokens", "Cost", "Prompt Snippet"];
@@ -101,7 +112,7 @@ export function ActivityLogsClient({ allLogs }: { allLogs: ActivityLog[] }) {
               {(Object.keys(STATUS_LABELS) as StatusFilter[]).map((s) => (
                 <DropdownMenuItem
                   key={s}
-                  onClick={() => setStatusFilter(s)}
+                  onClick={() => updateStatusFilter(s)}
                   className={cn(statusFilter === s && "font-semibold")}
                 >
                   {STATUS_LABELS[s]}
@@ -118,7 +129,7 @@ export function ActivityLogsClient({ allLogs }: { allLogs: ActivityLog[] }) {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem
-                onClick={() => setModelFilter("all")}
+                onClick={() => updateModelFilter("all")}
                 className={cn(modelFilter === "all" && "font-semibold")}
               >
                 All
@@ -126,7 +137,7 @@ export function ActivityLogsClient({ allLogs }: { allLogs: ActivityLog[] }) {
               {models.map((m) => (
                 <DropdownMenuItem
                   key={m}
-                  onClick={() => setModelFilter(m)}
+                  onClick={() => updateModelFilter(m)}
                   className={cn(modelFilter === m && "font-semibold")}
                 >
                   {m}
@@ -141,7 +152,7 @@ export function ActivityLogsClient({ allLogs }: { allLogs: ActivityLog[] }) {
             <input
               type="date"
               value={dateFilter}
-              onChange={(e) => setDateFilter(e.target.value)}
+              onChange={(e) => updateDateFilter(e.target.value)}
               className={cn(
                 "h-9 rounded-md border border-border bg-surface text-sm font-normal text-text-primary",
                 "pl-8 focus:outline-none focus:ring-2 focus:ring-ring cursor-pointer",
@@ -152,7 +163,7 @@ export function ActivityLogsClient({ allLogs }: { allLogs: ActivityLog[] }) {
             {dateFilter && (
               <button
                 type="button"
-                onClick={() => setDateFilter("")}
+                onClick={() => updateDateFilter("")}
                 className="absolute right-2 top-1/2 -translate-y-1/2 text-text-muted hover:text-text-primary"
                 aria-label="Clear date"
               >
