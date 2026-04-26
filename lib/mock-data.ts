@@ -5,6 +5,51 @@ export const kpiMetrics = {
   errorRate: "0.02%"
 };
 
+export type KPIRange = "today" | "last7" | "last30" | "allTime";
+
+export type KPISnapshot = {
+  totalRequests: string;
+  requestsChange: string;
+  requestsDetail: string;
+  tokenUsage: string;
+  tokenChange: string;
+  tokenDetail: string;
+  avgLatency: string;
+  latencyP50: string;
+  latencyP95: string;
+  latencyP99: string;
+  errorRate: string;
+  errorCount: string;
+  timeoutCount: string;
+};
+
+export const kpiByRange: Record<KPIRange, KPISnapshot> = {
+  today: {
+    totalRequests: "18.2K",  requestsChange: "+3%",  requestsDetail: "vs yesterday avg 17.7K",
+    tokenUsage:    "198K",   tokenChange:    "+5%",  tokenDetail:    "142K input · 56K output",
+    avgLatency:    "431ms",  latencyP50:     "310ms", latencyP95:    "892ms", latencyP99: "1.4s",
+    errorRate:     "0.01%",  errorCount:     "2 errors", timeoutCount: "0 timeouts",
+  },
+  last7: {
+    totalRequests: "124.5K", requestsChange: "+12%", requestsDetail: "vs prior 7 days: 111.1K",
+    tokenUsage:    "1.4M",   tokenChange:    "+8%",  tokenDetail:    "980K input · 420K output",
+    avgLatency:    "450ms",  latencyP50:     "320ms", latencyP95:    "940ms", latencyP99: "1.6s",
+    errorRate:     "0.02%",  errorCount:     "25 errors", timeoutCount: "8 timeouts",
+  },
+  last30: {
+    totalRequests: "521.3K", requestsChange: "+9%",  requestsDetail: "vs prior 30 days: 478.3K",
+    tokenUsage:    "5.8M",   tokenChange:    "+11%", tokenDetail:    "4.1M input · 1.7M output",
+    avgLatency:    "463ms",  latencyP50:     "330ms", latencyP95:    "960ms", latencyP99: "1.7s",
+    errorRate:     "0.03%",  errorCount:     "156 errors", timeoutCount: "41 timeouts",
+  },
+  allTime: {
+    totalRequests: "4.2M",   requestsChange: "",     requestsDetail: "Since Oct 2023",
+    tokenUsage:    "47.1M",  tokenChange:    "",     tokenDetail:    "33M input · 14.1M output",
+    avgLatency:    "471ms",  latencyP50:     "335ms", latencyP95:    "980ms", latencyP99: "1.8s",
+    errorRate:     "0.04%",  errorCount:     "1,680 errors", timeoutCount: "392 timeouts",
+  },
+};
+
 export const weeklyChartData = [
   { day: "Mon", requests: 7000 },
   { day: "Tue", requests: 8000 },
