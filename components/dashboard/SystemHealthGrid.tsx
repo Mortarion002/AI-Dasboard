@@ -1,15 +1,16 @@
 "use client";
 
 import * as React from "react";
+import Link from "next/link";
 import { motion } from "framer-motion";
 import { ArrowUpRight, Cpu, Database, Gauge, Route } from "lucide-react";
 import { Card } from "@/components/ui/card";
 
 const systems = [
-  { name: "Gateway", value: "99.98%", detail: "21ms edge p95", icon: Route },
-  { name: "Vector DB", value: "84%", detail: "cache hit ratio", icon: Database },
-  { name: "Workers", value: "312", detail: "active queues", icon: Cpu },
-  { name: "Budget", value: "$2.1K", detail: "month to date", icon: Gauge },
+  { name: "Gateway", value: "99.98%", detail: "21ms edge p95", icon: Route, href: "/activity" },
+  { name: "Vector DB", value: "84%", detail: "cache hit ratio", icon: Database, href: "/insights" },
+  { name: "Workers", value: "312", detail: "active queues", icon: Cpu, href: "/activity" },
+  { name: "Budget", value: "$2.1K", detail: "month to date", icon: Gauge, href: "/settings?panel=billing" },
 ];
 
 const routes = [
@@ -36,15 +37,19 @@ export function SystemHealthGrid() {
                 initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.05, duration: 0.24 }}
-                className="rounded-lg border border-border bg-surface-dim/50 p-4"
               >
-                <div className="flex items-center justify-between text-text-muted">
-                  <Icon className="h-4 w-4" />
-                  <ArrowUpRight className="h-3.5 w-3.5" />
-                </div>
-                <div className="mt-5 font-mono text-2xl text-text-primary">{system.value}</div>
-                <div className="mt-1 text-xs text-text-muted">{system.detail}</div>
-                <div className="mt-3 text-sm font-medium text-text-primary">{system.name}</div>
+                <Link
+                  href={system.href}
+                  className="group block rounded-lg border border-border bg-surface-dim/50 p-4 transition-colors hover:border-text-muted/40 hover:bg-surface-dim"
+                >
+                  <div className="flex items-center justify-between text-text-muted">
+                    <Icon className="h-4 w-4" />
+                    <ArrowUpRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                  </div>
+                  <div className="mt-5 font-mono text-2xl text-text-primary">{system.value}</div>
+                  <div className="mt-1 text-xs text-text-muted">{system.detail}</div>
+                  <div className="mt-3 text-sm font-medium text-text-primary">{system.name}</div>
+                </Link>
               </motion.div>
             );
           })}

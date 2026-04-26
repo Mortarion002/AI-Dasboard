@@ -17,15 +17,21 @@ Key goals:
 ## Features
 
 - Dashboard overview with KPI cards for requests, token usage, latency, and error rate.
+- **KPI cards respond to the date range filter** (Today / Last 7 Days / Last 30 Days / All Time) and update all four metrics live.
+- **Hover tooltips on KPI cards** show contextual breakdowns — requests vs prior period, token input/output split, latency p50/p95/p99, and error/timeout counts.
 - System Health section showing uptime, routing lanes, worker counts, cache health, and budget usage.
+- **System Health cards are clickable** and navigate to relevant pages (Gateway/Workers → Activity, Vector DB → Insights, Budget → Billing).
 - Public provider status panel backed by free Statuspage JSON APIs for Vercel, GitHub, OpenAI, and Anthropic.
 - Request volume chart and recent activity timeline.
 - Activity Logs page with expandable rows for prompt, response, tokens, cost, latency, and request metadata.
+- **Activity Logs filters are fully functional** — Status (All / Success / Error / Timeout), Model, and Date filters all filter the table live.
+- **Activity Logs pagination** works with Previous/Next buttons and a live "Showing X to Y of Z entries" count.
+- **Activity Logs export** downloads the currently filtered results as a CSV file.
 - Insights page with alert banners, executive summary, model usage, and topic distribution.
 - Settings workspace with working panels for Profile, API Keys, Preferences, and Billing.
 - Notification sheet opened from the topbar bell button.
 - Profile dropdown with direct links to settings panels.
-- Command palette with quick actions and keyboard shortcut support.
+- **Command palette** with working navigation to all pages, quick actions, and keyboard shortcut support (Ctrl K). Items filter as you type and navigate on click or Enter.
 - Dark/light theme toggle powered by `next-themes`.
 - Framer Motion animations for navigation, panels, cards, and controls.
 - shadcn/ui primitives for consistent accessible UI components.
@@ -57,8 +63,8 @@ app/
   layout.tsx      Root app shell
 
 components/
-  activity/       Activity table and expanded log rows
-  dashboard/      KPI, chart, health, and activity widgets
+  activity/       Activity table, filters, expanded log rows, and client wrapper
+  dashboard/      KPI cards, chart, health grid, activity widgets, and client wrapper
   insights/       Insight cards, charts, and summaries
   layout/         Sidebar, topbar, and command palette
   settings/       Settings panels and API key table
@@ -67,7 +73,7 @@ components/
 
 lib/
   db.ts           SQLite connection, schema migration, profile persistence, status snapshots
-  mock-data.ts    Local mock data used by all routes
+  mock-data.ts    Local mock data used by all routes (includes per-range KPI snapshots)
   provider-status.ts
                   Public provider status fetching with SQLite fallback
   utils.ts        Shared utility helpers
@@ -82,7 +88,7 @@ store/
 | --- | --- |
 | `/` | Redirects or entry route for the app shell |
 | `/dashboard` | Main AIOps overview and system health dashboard |
-| `/activity` | Request/activity log table with expandable details |
+| `/activity` | Request/activity log table with filters, pagination, and export |
 | `/insights` | Operational alerts, summaries, and model/topic analytics |
 | `/settings` | Settings workspace |
 | `/settings?panel=profile` | Profile settings panel |
@@ -169,15 +175,43 @@ The main implementation lives in:
 components/settings/SettingsWorkspace.tsx
 ```
 
+## Activity Logs
+
+The activity log page is fully interactive:
+
+- **Status filter** — All, Success, Error (non-timeout), Timeout.
+- **Model filter** — derived dynamically from the actual log data; selecting a model filters the table to that model only.
+- **Date filter** — date picker filters logs to a specific day. An × button clears the selection.
+- **Pagination** — 5 entries per page with Previous/Next buttons disabled at boundaries and a live "Showing X to Y of Z entries" counter.
+- **Export** — downloads the currently filtered (not all) logs as a CSV with columns: Req ID, Status, Model, Latency, Date, Timestamp, Tokens, Cost, Prompt Snippet.
+
+Filters reset to page 1 automatically when changed. The filter toolbar and pagination logic live in:
+
+```text
+components/activity/ActivityLogsClient.tsx
+```
+
+## Command Palette
+
+Open with **Ctrl K** or by clicking the search bar in the topbar.
+
+- Type to filter items — all items have explicit `value` props for reliable matching.
+- **Navigate group** — Dashboard, Activity Logs, Insights, Settings — all navigate on click or Enter.
+- **Quick Actions** — Create API Key, Go to Insights, Open Preferences, Toggle Dark Mode (Ctrl D), Invite Team Member.
+- The palette closes automatically when the route changes (via `usePathname` effect).
+- Mouse clicks work via `onPointerDown` handlers that fire before `cmdk` can cancel the event chain.
+
 ## Mock Data
 
-The dashboard still uses local mock data for generated AI activity logs, model usage, and demo billing information:
+The dashboard uses local mock data for generated AI activity logs, model usage, demo billing information, and per-range KPI snapshots:
 
 ```text
 lib/mock-data.ts
 ```
 
-Live provider health now comes from public Statuspage-compatible JSON APIs:
+KPI data is available for four time ranges via the `kpiByRange` export — each snapshot includes the headline metric plus tooltip breakdown fields (change %, p50/p95/p99 latency, input/output token split, error/timeout counts).
+
+Live provider health comes from public Statuspage-compatible JSON APIs:
 
 ```text
 https://www.vercel-status.com/api/v2/summary.json
@@ -197,6 +231,14 @@ Default database path:
 ```text
 data/aiops-command.db
 ```
+
+On Vercel, the app automatically uses:
+
+```text
+/tmp/aiops-command.db
+```
+
+This avoids read-only filesystem failures in Vercel Functions, but `/tmp` is ephemeral. For production-grade persistence on Vercel, move profile/settings data to a managed database such as Vercel Postgres, Neon, Supabase, Turso/libSQL, or another external database.
 
 You can override it with:
 
@@ -253,9 +295,9 @@ Then connect the repository in the Vercel dashboard or deploy with the Vercel CL
 - Add authentication and role-based access controls.
 - Add toast feedback for save actions and key generation.
 - Add persistent billing and preference state.
-- Add real filtering and pagination on Activity Logs.
+- Add chart data that responds to the dashboard date range filter.
 - Add chart SSR guards if the Recharts build warnings need to be silenced.
 
-
 ## LICENSE
+
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.

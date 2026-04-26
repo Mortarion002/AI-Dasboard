@@ -29,7 +29,7 @@ import { Separator } from "@/components/ui/separator";
 import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
-import { saveProfileAction, type ProfileActionState } from "@/app/settings/actions";
+import { saveProfileAction, savePlanAction, type ProfileActionState } from "@/app/settings/actions";
 import type { OperatorProfile } from "@/lib/db";
 import { cn } from "@/lib/utils";
 
@@ -57,6 +57,10 @@ type PanelId = (typeof panels)[number]["id"];
 
 function isPanelId(value: string): value is PanelId {
   return panels.some((panel) => panel.id === value);
+}
+
+function formatUpdatedAt(value: string) {
+  return value ? `${value.slice(0, 16).replace("T", " ")} UTC` : "unknown";
 }
 
 export function SettingsWorkspace({ apiKeys, initialPanel, profile }: SettingsWorkspaceProps) {
@@ -122,7 +126,11 @@ export function SettingsWorkspace({ apiKeys, initialPanel, profile }: SettingsWo
             </div>
             <p className="mt-2 max-w-2xl text-sm leading-6 text-text-muted">{activeMeta.description}</p>
           </div>
-          <Button form={activePanel === "profile" ? "profile-form" : undefined}>
+          <Button form={
+            activePanel === "profile" ? "profile-form" : 
+            activePanel === "billing" ? "billing-form" : 
+            undefined
+          }>
             Save changes
           </Button>
         </div>
@@ -137,7 +145,7 @@ export function SettingsWorkspace({ apiKeys, initialPanel, profile }: SettingsWo
           {activePanel === "profile" && <ProfilePanel profile={profile} />}
           {activePanel === "api-keys" && <ApiKeysPanel apiKeys={apiKeys} />}
           {activePanel === "preferences" && <PreferencesPanel />}
-          {activePanel === "billing" && <BillingPanel />}
+          {activePanel === "billing" && <BillingPanel profile={profile} />}
         </motion.div>
       </main>
     </div>
@@ -191,7 +199,7 @@ function ProfilePanel({ profile }: { profile: OperatorProfile }) {
                 state.status === "idle" && "text-text-muted"
               )}
             >
-              {pending ? "Saving profile..." : state.message || `Last updated ${new Date(profile.updatedAt).toLocaleString()}`}
+              {pending ? "Saving profile..." : state.message || `Last updated ${formatUpdatedAt(profile.updatedAt)}`}
             </p>
             <Button type="submit" disabled={pending}>
               {pending ? "Saving..." : "Save profile"}
@@ -330,7 +338,25 @@ function PreferenceSwitch({
   );
 }
 
-function BillingPanel() {
+type PlanTier = "Pro" | "Plus" | "Business" | "Scale";
+
+const planDetails: Record<PlanTier, { spend: string; tokens: string; desc: string }> = {
+  Pro: { spend: "$29", tokens: "100K", desc: "100K monthly tokens, basic support." },
+  Plus: { spend: "$199", tokens: "500K", desc: "500K monthly tokens, priority routing." },
+  Business: { spend: "$899", tokens: "1.5M", desc: "1.5M monthly tokens, priority routing, audit retention." },
+  Scale: { spend: "$2,184", tokens: "5M", desc: "5M monthly tokens, priority routing, dedicated support." },
+};
+
+function BillingPanel({ profile }: { profile: OperatorProfile }) {
+  const initialState: ProfileActionState = {
+    status: "idle",
+    message: "",
+  };
+  const [state, formAction, pending] = useActionState(savePlanAction, initialState);
+
+  const currentPlan = (Object.keys(planDetails).includes(profile.plan) ? profile.plan : "Scale") as PlanTier;
+  const details = planDetails[currentPlan];
+
   return (
     <div className="grid gap-4 lg:grid-cols-[1fr_340px]">
       <Card>
@@ -338,23 +364,39 @@ function BillingPanel() {
           <CardTitle>Current plan</CardTitle>
         </CardHeader>
         <CardContent className="space-y-5">
-          <div className="flex flex-col gap-4 rounded-lg border border-border bg-surface-dim p-5 sm:flex-row sm:items-center sm:justify-between">
-            <div>
+          <form id="billing-form" action={formAction} className="flex flex-col gap-4 rounded-lg border border-border bg-surface-dim p-5 sm:flex-row sm:items-start sm:justify-between">
+            <div className="flex-1 min-w-0 pr-2">
               <div className="flex items-center gap-2">
-                <h3 className="text-lg font-semibold text-text-primary">Scale</h3>
-                <Badge>Annual</Badge>
+                <h3 className="text-lg font-semibold text-text-primary truncate">{currentPlan}</h3>
+                <Badge className="shrink-0">Annual</Badge>
               </div>
-              <p className="mt-2 text-sm text-text-muted">1.5M monthly tokens, priority routing, audit retention.</p>
+              <p className="mt-2 text-sm text-text-muted">{details.desc}</p>
             </div>
-            <Button variant="outline">
-              <WalletCards className="mr-2 h-4 w-4" />
-              Manage plan
-            </Button>
-          </div>
+            
+            <div className="flex flex-col items-start sm:items-end gap-2 shrink-0">
+              <Select name="plan" defaultValue={currentPlan} disabled={pending}>
+                <SelectTrigger className="w-[140px]">
+                  <WalletCards className="mr-2 h-4 w-4 shrink-0" />
+                  <span className="truncate flex-1 text-left"><SelectValue placeholder="Manage plan" /></span>
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Pro">Pro</SelectItem>
+                  <SelectItem value="Plus">Plus</SelectItem>
+                  <SelectItem value="Business">Business</SelectItem>
+                  <SelectItem value="Scale">Scale</SelectItem>
+                </SelectContent>
+              </Select>
+              {(pending || state.message) && (
+                <p className={cn("text-xs", state.status === "success" ? "text-success" : "text-error")}>
+                  {pending ? "Saving plan..." : state.message}
+                </p>
+              )}
+            </div>
+          </form>
           <div className="grid gap-3 sm:grid-cols-3">
             {[
-              ["Monthly spend", "$2,184"],
-              ["Included tokens", "1.5M"],
+              ["Monthly spend", details.spend],
+              ["Included tokens", details.tokens],
               ["Renewal", "May 12"],
             ].map(([label, value]) => (
               <div key={label} className="rounded-lg border border-border p-4">

@@ -27,6 +27,7 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { cn } from "@/lib/utils";
 import { useUIStore } from "@/store/useUIStore";
+import type { OperatorProfile } from "@/lib/db";
 
 const notifications = [
   {
@@ -49,11 +50,12 @@ const notifications = [
   },
 ];
 
-export function Topbar() {
+export function Topbar({ profile }: { profile?: OperatorProfile }) {
   const pathname = usePathname();
   const setCommandPaletteOpen = useUIStore((state) => state.setCommandPaletteOpen);
   const { resolvedTheme, setTheme } = useTheme();
   const [readAll, setReadAll] = React.useState(false);
+
   const isDark = resolvedTheme !== "light";
   const unreadCount = readAll ? 0 : notifications.filter((item) => item.unread).length;
 
@@ -109,6 +111,7 @@ export function Topbar() {
         >
           <motion.span
             key={isDark ? "moon" : "sun"}
+            suppressHydrationWarning
             initial={{ opacity: 0, rotate: -20, scale: 0.8 }}
             animate={{ opacity: 1, rotate: 0, scale: 1 }}
             transition={{ duration: 0.18 }}
@@ -180,8 +183,8 @@ export function Topbar() {
           <DropdownMenuContent align="end" className="w-64">
             <DropdownMenuLabel>
               <div className="flex flex-col">
-                <span className="text-sm">Morgan Lee</span>
-                <span className="text-xs font-normal text-text-muted">admin@aiops.com</span>
+                <span className="text-sm">{profile?.fullName ?? "Morgan Lee"}</span>
+                <span className="text-xs font-normal text-text-muted">{profile?.email ?? "admin@aiops.com"}</span>
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
@@ -212,7 +215,11 @@ export function Topbar() {
             <DropdownMenuSeparator />
             <div className="flex items-center justify-between px-2 py-1.5">
               <span className="text-sm text-text-muted">Dark mode</span>
-              <Switch checked={isDark} onCheckedChange={(checked) => setTheme(checked ? "dark" : "light")} />
+              <Switch
+                checked={isDark}
+                onCheckedChange={(checked) => setTheme(checked ? "dark" : "light")}
+                suppressHydrationWarning
+              />
             </div>
           </DropdownMenuContent>
         </DropdownMenu>
